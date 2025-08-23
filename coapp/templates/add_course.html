@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!--<h2>Добавить новый курс</h2>-->
+
+<!--<form method="post" enctype="multipart/form-data">-->
+<!--    {% csrf_token %}-->
+
+
+<!--    &lt;!&ndash; Набор упражнений курса &ndash;&gt;-->
+<!--    <h3>Материалы курса</h3>-->
+<!--    {{ exercise_formset.management_form }}-->
+<!--    <div id="exercise-forms" class="formset">-->
+<!--        {% for form in exercise_formset %}-->
+<!--        <div class="form-row formset-item">-->
+<!--            {{ form.as_p }}-->
+<!--        </div>-->
+<!--        {% endfor %}-->
+<!--    </div>-->
+<!--    <button type="button" id="add-exercise-form">+ Добавить еще</button>-->
+
+<!--    <br><br><br>-->
+
+<!--    &lt;!&ndash; Набор сроков курса (time to beat) &ndash;&gt;-->
+<!--    <h3>Сроки и цена</h3>-->
+<!--    {{ timetobeat_formset.management_form }}-->
+<!--    <div id="time-to-beat-forms" class="formset">-->
+<!--        {% for form in timetobeat_formset %}-->
+<!--        <div class="form-row formset-item">-->
+<!--            <div class="form-row">-->
+<!--                <label for="{{ form.time.id_for_label }}">Время (часы):</label>-->
+<!--                {{ form.time }}-->
+<!--            </div>-->
+<!--            <div class="form-row">-->
+<!--                <label for="{{ form.price.id_for_label }}">Цена:</label>-->
+<!--                {{ form.price }}-->
+<!--            </div>-->
+<!--            <div class="form-row">-->
+<!--                {{ form.DELETE }} Удалить-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        {% endfor %}-->
+<!--    </div>-->
+<!--    <button type="button" id="add-time-to-beat-form">+ Добавить еще</button>-->
+
+<!--    <br><br><br>-->
+
+<!--    &lt;!&ndash; Набор тестов &ndash;&gt;-->
+<!--    <h3>Тесты</h3>-->
+<!--    {{ test_formset.management_form }}-->
+<!--    <div id="test-forms" class="formset">-->
+<!--        {% for form in test_formset %}-->
+<!--        <div class="form-row formset-item" id="test-form-{{ forloop.counter }}">-->
+<!--            {% for field in form %}-->
+<!--            <div class="form-row">-->
+<!--                {{ field.label_tag }}-->
+<!--                {{ field }}-->
+<!--            </div>-->
+<!--            {% endfor %}-->
+<!--        </div>-->
+<!--        {% endfor %}-->
+<!--    </div>-->
+<!--    <button type="button" id="add-test-form">+ Добавить тест</button>-->
+
+<!--    <button type="submit" class="save-course-button">Сохранить курс</button>-->
+<!--</form>-->
+
+
+
+
+    <h2>Добавить курс</h2>
+
+    <div class="form-row">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="save-course-button">Сохранить курс</button>
+    </form>
+    </div>
+
+
+{% endblock %}
+

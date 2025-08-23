@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="main">
+    <div class="container">
+
+        <div class="filter_sidebar">
+
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Поиск..." oninput="searchCourses()">
+            </div>
+
+            <h2 class="toggle-heading">
+                <img src="../../static/images/dropdown.png" alt="Back" height="16px">
+                Все курсы
+            </h2>
+            <ul id="categoryList" class="dropdown-list">
+                {% for category in category %}
+                <li><a href="#" class="category-link" data-category="{{ category.name }}">{{ category.name }}</a></li>
+                {% empty %}
+                <li>No categories available.</li>
+                {% endfor %}
+            </ul>
+
+            <hr>
+
+            <h2 class="toggle-heading">
+                <img src="../../static/images/dropdown.png" alt="Back" height="16px">
+                Направление
+            </h2>
+            <ul id="TopicsList" class="dropdown-list">
+                {% for topic in topic %}
+                <li><a href="#" class="topic-link" data-topic="{{ topic.name }}">{{ topic.name }}</a></li>
+                {% empty %}
+                <li>No topics available.</li>
+                {% endfor %}
+            </ul>
+
+            <button id="showAll">Сбросить фильтры</button>
+        </div>
+
+        <div class="course_list">
+
+            <div class="course_card">
+                {% for course in courses %}
+                <div class="course_item"
+                     data-category="{{ course.category }}"
+                     data-topic="{{ course.topic }}"
+                     data-content="{{ course.content | lower }}"
+                     onclick="openPopup('{{ course.id }}', '{{ course.content }}', '{{ course.topic }}', '{{ course.termofstudy }}', '{{ course.category }}')"
+                     style="cursor: pointer;">
+
+                    <div class="course_container">
+                        <div class="course_description">
+                            <p><strong>{{ course.content }}</strong></p>
+                        </div>
+
+                        <div class="course_threelines">
+                            <p><strong>Курс:</strong> {{ course.topic }}</p>
+                            <p><strong>Направление:</strong> {{ course.category }}</p>
+                        </div>
+                    </div>
+
+                    <div class="course_catprice">
+                        <p class="price">
+                            {% for time_to_beat in course.coursetimetobeat_set.all %}
+                            {{ time_to_beat.time }}  : {{ time_to_beat.price }} ₽ <br>
+                            {% if not forloop.last %} {% endif %}
+                            {% endfor %}
+                        </p>
+                    </div>
+
+                    <div class="course_also">
+                        <p>Нажмите на карточку чтобы узнать подробнее</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div id="coursePopup" class="popup" style="display: none;">
+            <div class="popup_content">
+                <a href="/" class="user-menu--profile">
+                    <img src="../../static/images/close.png" alt="" height="15px">Вернуться
+                </a>
+                <h2 id="popupTitle"></h2>
+                <br>
+                <a id="registerLink" href="#" style="color: #47546;">Регистрация на курс</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function searchCourses() {
+        const searchText = document.getElementById('searchInput').value.toLowerCase();
+        const courseItems = document.querySelectorAll('.course_item');
+        courseItems.forEach(item => {
+            const category = item.getAttribute('data-category').toLowerCase();
+            const topic = item.getAttribute('data-topic').toLowerCase();
+            const content = item.getAttribute('data-content').toLowerCase();
+
+            if (category.includes(searchText) || topic.includes(searchText) || content.includes(searchText)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    function openPopup(id, content, topic, term, category) {
+        document.getElementById('popupTitle').innerText = content;
+        const registerBaseUrl = "/register/";
+        const registerLink = registerBaseUrl + id;
+        document.getElementById('registerLink').href = registerLink;
+        document.getElementById('coursePopup').style.display = 'flex';
+    }
+
+    document.querySelectorAll('.category-link').forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            const selectedCategory = this.getAttribute('data-category');
+            filterCourses('data-category', selectedCategory);
+        });
+    });
+
+    document.querySelectorAll('.topic-link').forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            const selectedTopic = this.getAttribute('data-topic');
+            filterCourses('data-topic', selectedTopic);
+        });
+    });
+
+    document.getElementById('showAll').addEventListener('click', function() {
+        const courseItems = document.querySelectorAll('.course_item');
+        courseItems.forEach(item => {
+            item.style.display = 'block';
+        });
+    });
+
+    function filterCourses(attribute, value) {
+        const courseItems = document.querySelectorAll('.course_item');
+        courseItems.forEach(item => {
+            if (item.getAttribute(attribute) === value) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    // 🔽 DROPDOWN TOGGLE FUNCTIONALITY
+    document.querySelectorAll('.toggle-heading').forEach(heading => {
+        heading.addEventListener('click', () => {
+            const nextList = heading.nextElementSibling;
+            if (nextList && nextList.classList.contains('dropdown-list')) {
+                nextList.style.display = (nextList.style.display === 'none' || nextList.style.display === '') ? 'block' : 'none';
+            }
+        });
+    });
+
+    // ⏬ Optionally start with dropdowns hidden
+    document.querySelectorAll('.dropdown-list').forEach(list => {
+        list.style.display = 'none'; // Change to 'block' to keep them open initially
+    });
+</script>
+{% endblock %}

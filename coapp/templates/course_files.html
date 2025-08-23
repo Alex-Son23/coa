@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<div class="material_course-card">
+
+  <div class="material_course-header">
+    <p><strong>Упражнения по курсу:</strong></p>
+  </div>
+
+  <!-- Block 1 -->
+  <div class="material_exercise-block">
+    <h3>Блок 1</h3>
+    <ul class="material_exercise-list">
+      {% for exercise in block_1_exercises %}
+      <br>
+      <li class="material_exercise-item">
+        {% if exercise.pdf_file %}
+        <a href="{{ exercise.pdf_file.url }}" target="_blank">{{ exercise.name }}</a>
+        {% else %}
+        <span>{{ exercise.name }} (файл не загружен)</span>
+        {% endif %}
+      </li>
+      {% empty %}
+      <p>Нет доступных упражнений для этого блока.</p>
+      {% endfor %}
+      <br><hr><br>
+      <p>Оценка: {{ test_grade_1 }}</p>
+    </ul>
+    <a class="material_test-link" href="/tests/{{ course_id }}/1/">Пройти тест для блока 1</a>
+  </div>
+  {% if howmuch_blocks == 2 or howmuch_blocks > 2 %}
+
+  <!-- Repeat for Block 2 through 6 -->
+  <div class="material_exercise-block">
+    <h3>Блок 2</h3>
+    <ul class="material_exercise-list">
+      {% for exercise in block_2_exercises %}
+      <br>
+      <li class="material_exercise-item">
+        {% if exercise.pdf_file %}
+        <a href="{{ exercise.pdf_file.url }}" target="_blank">{{ exercise.name }}</a>
+        {% else %}
+        <span>{{ exercise.name }} (файл не загружен)</span>
+        {% endif %}
+      </li>
+      {% empty %}
+      <p>Нет доступных упражнений для этого блока.</p>
+      {% endfor %}
+      <br><hr><br>
+      <p>Оценка: {{ test_grade_2 }}</p>
+    </ul>
+    <a class="material_test-link" href="/tests/{{ course_id }}/2/">Пройти тест для блока 2</a>
+  </div>
+  {% endif %}
+  <!-- Continue this pattern up to Block 6 -->
+  {% if howmuch_blocks == 3 or howmuch_blocks > 3 %}
+  <div class="material_exercise-block">
+    <h3>Блок 3</h3>
+    <ul class="material_exercise-list">
+      {% for exercise in block_3_exercises %}
+      <br>
+      <li class="material_exercise-item">
+        {% if exercise.pdf_file %}
+        <a href="{{ exercise.pdf_file.url }}" target="_blank">{{ exercise.name }}</a>
+        {% else %}
+        <span>{{ exercise.name }} (файл не загружен)</span>
+        {% endif %}
+      </li>
+      {% empty %}
+      <p>Нет доступных упражнений для этого блока.</p>
+      {% endfor %}
+      <br><hr><br>
+      <p>Оценка: {{ test_grade_3 }}</p>
+    </ul>
+    <a class="material_test-link" href="/tests/{{ course_id }}/3/">Пройти тест для блока 3</a>
+  </div>
+  {% endif %}
+  {% if howmuch_blocks == 4 or howmuch_blocks > 4 %}
+
+  <div class="material_exercise-block">
+    <h3>Блок 4</h3>
+    <ul class="material_exercise-list">
+      {% for exercise in block_4_exercises %}
+      <br>
+      <li class="material_exercise-item">
+        {% if exercise.pdf_file %}
+        <a href="{{ exercise.pdf_file.url }}" target="_blank">{{ exercise.name }}</a>
+        {% else %}
+        <span>{{ exercise.name }} (файл не загружен)</span>
+        {% endif %}
+      </li>
+      {% empty %}
+      <p>Нет доступных упражнений для этого блока.</p>
+      {% endfor %}
+      <br><hr><br>
+      <p>Оценка: {{ test_grade_4 }}</p>
+    </ul>
+    <a class="material_test-link" href="/tests/{{ course_id }}/4/">Пройти тест для блока 4</a>
+  </div>
+  {% endif %}
+  {% if howmuch_blocks == 5 or howmuch_blocks > 5 %}
+  <div class="material_exercise-block">
+    <h3>Блок 5</h3>
+    <ul class="material_exercise-list">
+      {% for exercise in block_5_exercises %}
+      <br>
+      <li class="material_exercise-item">
+        {% if exercise.pdf_file %}
+        <a href="{{ exercise.pdf_file.url }}" target="_blank">{{ exercise.name }}</a>
+        {% else %}
+        <span>{{ exercise.name }} (файл не загружен)</span>
+        {% endif %}
+      </li>
+      {% empty %}
+      <p>Нет доступных упражнений для этого блока.</p>
+      {% endfor %}
+      <br><hr><br>
+      <p>Оценка: {{ test_grade_5 }}</p>
+    </ul>
+    <a class="material_test-link" href="/tests/{{ course_id }}/5/">Пройти тест для блока 5</a>
+  </div>
+  {% endif %}
+  {% if howmuch_blocks == 6 or howmuch_blocks > 6 %}
+    <div class="material_exercise-block">
+      <h3>Блок 6</h3>
+      <ul class="material_exercise-list">
+        {% for exercise in block_6_exercises %}
+        <br>
+        <li class="material_exercise-item">
+          {% if exercise.pdf_file %}
+          <a href="{{ exercise.pdf_file.url }}" target="_blank">{{ exercise.name }}</a>
+          {% else %}
+          <span>{{ exercise.name }} (файл не загружен)</span>
+          {% endif %}
+        </li>
+        {% empty %}
+        <p>Нет доступных упражнений для этого блока.</p>
+        {% endfor %}
+        <br><hr><br>
+        <p>Оценка: {{ test_grade_6 }}</p>
+      </ul>
+      <a class="material_test-link" href="/tests/{{ course_id }}/6/">Пройти тест для блока 6</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

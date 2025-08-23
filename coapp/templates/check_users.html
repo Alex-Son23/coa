@@ -1,0 +1,453 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+</head>
+<body>
+
+<div class="tab">
+  <button class="tablinks" onclick="openTab(event, 'all-users')">Все пользователи</button>
+  <button class="tablinks" onclick="openTab(event, 'paid-users')">Оплачено</button>
+  <button class="tablinks" onclick="openTab(event, 'docs-on-check-users')">Документы на проверке</button>
+  <button class="tablinks" onclick="openTab(event, 'docs-checked-users')">Документы проверены</button>
+  <button class="tablinks" onclick="openTab(event, 'finished-users')">Аттестация</button>
+  <button class="tablinks" onclick="openTab(event, 'sended-users')">Отправлен</button>
+  <button class="tablinks" onclick="openTab(event, 'recieved-users')">Получен клиентом</button>
+</div>
+
+<div id="all-users" class="tabcontent">
+  <h3 class="bg-all-users">Все пользователи</h3>
+  <table class="user-table">
+    <thead>
+    <tr>
+      <th>№</th>
+      <th>Дата начала обучения</th>
+      <th>Дата окончания обучения</th>
+      <th>ФИО</th>
+      <th>Дата рождения</th>
+      <th>Уровень образования</th>
+      <th>Конт. телефон</th>
+      <th>Эл. Почта</th>
+      <th>Адрес доставки</th>
+      <th>Название курса</th>
+      <th>Стоимость</th>
+      <th>Статус заявки</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for user in all_users %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ user.date_joined|date:"d.m.Y" }}</td>
+      <td>{{ user.end_date|date:"d.m.Y" }}</td>
+      <td>{{ user.username }}</td>
+      <td>{{ user.birthdate|date:"d.m.Y" }}</td>
+      <td>{{ user.get_education_display }}</td>
+      <td>{{ user.phone_number }}</td>
+      <td>{{ user.user.email }}</td>
+      <td>{{ user.address }}</td>
+      <td>{{ user.course.content }}</td>
+      <td>{{ user.time_to_beat.price }}</td>
+
+      <td>
+          {% if user.is_approved %}✅Проверено{% else %}Не проверено{% endif %}
+        <br>
+          {% if user.is_paid %}✅Оплачен{% else %}Не оплачен{% endif %}
+        <br>
+
+          {% if user.scans_approved %}✅Документы проверены{% else %}Документы не проверены{% endif %}        <br>
+          {% if user.attestation_finished %}✅Прошел аттестацию{% else %}Прошел аттестацию{% endif %}        <br>
+          {% if user.is_sended %}✅Отправили почтой диплом{% else %}Не отправили почтой диплом{% endif %}        <br>
+          {% if user.recieved_docs %}✅Получил документы{% else %}Не получил документы{% endif %}        <br>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="12">Нет пользователей</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div id="paid-users" class="tabcontent">
+  <h3 class="bg-paid">Оплачено</h3>
+  <table class="user-table">
+    <thead>
+    <tr>
+      <th>№</th>
+      <th>Дата начала обучения</th>
+      <th>Дата окончания обучения</th>
+      <th>ФИО</th>
+      <th>Дата рождения</th>
+      <th>Уровень образования</th>
+      <th>Конт. телефон</th>
+      <th>Эл. Почта</th>
+      <th>Адрес доставки</th>
+      <th>Название курса</th>
+      <th>Стоимость</th>
+      <th>Статус заявки</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for user in users_paid %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ user.date_joined|date:"d.m.Y" }}</td>
+      <td>{{ user.end_date|date:"d.m.Y" }}</td>
+      <td>{{ user.username }}</td>
+      <td>{{ user.birthdate|date:"d.m.Y" }}</td>
+      <td>{{ user.get_education_display }}</td>
+      <td>{{ user.phone_number }}</td>
+      <td>{{ user.user.email }}</td>
+      <td>{{ user.address }}</td>
+      <td>{{ user.course.content }}</td>
+      <td>{{ user.time_to_beat.price }}</td>
+      <td>
+        {% if user.is_approved %}✅Проверено{% else %}Не проверено{% endif %}
+        <br>
+        {% if user.is_paid %}✅Оплачен{% else %}Не оплачен{% endif %}
+        <br>
+
+        {% if user.scans_approved %}✅Документы проверены{% else %}Документы не проверены{% endif %}        <br>
+        {% if user.attestation_finished %}✅Прошел аттестацию{% else %}Прошел аттестацию{% endif %}        <br>
+        {% if user.is_sended %}✅Отправили почтой диплом{% else %}Не отправили почтой диплом{% endif %}        <br>
+        {% if user.recieved_docs %}✅Получил документы{% else %}Не получил документы{% endif %}        <br>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="12">Нет пользователей</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div id="docs-on-check-users" class="tabcontent">
+  <h3 class="bg-docs-on-check">Документы на проверке</h3>
+  <table class="user-table">
+    <thead>
+    <tr>
+      <th>№</th>
+      <th>Дата начала обучения</th>
+      <th>Дата окончания обучения</th>
+      <th>ФИО</th>
+      <th>Дата рождения</th>
+      <th>Уровень образования</th>
+      <th>Конт. телефон</th>
+      <th>Эл. Почта</th>
+      <th>Адрес доставки</th>
+      <th>Название курса</th>
+      <th>Стоимость</th>
+      <th>Статус заявки</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for user in users_docs_on_check %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ user.date_joined|date:"d.m.Y" }}</td>
+      <td>{{ user.end_date|date:"d.m.Y" }}</td>
+      <td>{{ user.username }}</td>
+      <td>{{ user.birthdate|date:"d.m.Y" }}</td>
+      <td>{{ user.get_education_display }}</td>
+      <td>{{ user.phone_number }}</td>
+      <td>{{ user.user.email }}</td>
+      <td>{{ user.address }}</td>
+      <td>{{ user.course.content }}</td>
+      <td>{{ user.time_to_beat.price }}</td>
+      <td>
+        {% if user.is_approved %}✅Проверено{% else %}Не проверено{% endif %}
+        <br>
+        {% if user.is_paid %}✅Оплачен{% else %}Не оплачен{% endif %}
+        <br>
+
+        {% if user.scans_approved %}✅Документы проверены{% else %}Документы не проверены{% endif %}        <br>
+        {% if user.attestation_finished %}✅Прошел аттестацию{% else %}Прошел аттестацию{% endif %}        <br>
+        {% if user.is_sended %}✅Отправили почтой диплом{% else %}Не отправили почтой диплом{% endif %}        <br>
+        {% if user.recieved_docs %}✅Получил документы{% else %}Не получил документы{% endif %}        <br>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="12">Нет пользователей</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div id="docs-checked-users" class="tabcontent">
+  <h3 class="bg-docs-checked">Документы проверены</h3>
+  <table class="user-table">
+    <thead>
+    <tr>
+      <th>№</th>
+      <th>Дата начала обучения</th>
+      <th>Дата окончания обучения</th>
+      <th>ФИО</th>
+      <th>Дата рождения</th>
+      <th>Уровень образования</th>
+      <th>Конт. телефон</th>
+      <th>Эл. Почта</th>
+      <th>Адрес доставки</th>
+      <th>Название курса</th>
+      <th>Стоимость</th>
+      <th>Статус заявки</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for user in users_docs_checked %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ user.date_joined|date:"d.m.Y" }}</td>
+      <td>{{ user.end_date|date:"d.m.Y" }}</td>
+      <td>{{ user.username }}</td>
+      <td>{{ user.birthdate|date:"d.m.Y" }}</td>
+      <td>{{ user.get_education_display }}</td>
+      <td>{{ user.phone_number }}</td>
+      <td>{{ user.user.email }}</td>
+      <td>{{ user.address }}</td>
+      <td>{{ user.course.content }}</td>
+      <td>{{ user.time_to_beat.price }}</td>
+      <td>
+        {% if user.is_approved %}✅Проверено{% else %}Не проверено{% endif %}
+        <br>
+        {% if user.is_paid %}✅Оплачен{% else %}Не оплачен{% endif %}
+        <br>
+
+        {% if user.scans_approved %}✅Документы проверены{% else %}Документы не проверены{% endif %}        <br>
+        {% if user.attestation_finished %}✅Прошел аттестацию{% else %}Прошел аттестацию{% endif %}        <br>
+        {% if user.is_sended %}✅Отправили почтой диплом{% else %}Не отправили почтой диплом{% endif %}        <br>
+        {% if user.recieved_docs %}✅Получил документы{% else %}Не получил документы{% endif %}        <br>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="12">Нет пользователей</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div id="finished-users" class="tabcontent">
+  <h3 class="bg-finished">Аттестация</h3>
+  <table class="user-table">
+    <thead>
+    <tr>
+      <th>№</th>
+      <th>Дата начала обучения</th>
+      <th>Дата окончания обучения</th>
+      <th>ФИО</th>
+      <th>Дата рождения</th>
+      <th>Уровень образования</th>
+      <th>Конт. телефон</th>
+      <th>Эл. Почта</th>
+      <th>Адрес доставки</th>
+      <th>Название курса</th>
+      <th>Стоимость</th>
+      <th>Статус заявки</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for user in users_finished %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ user.date_joined|date:"d.m.Y" }}</td>
+      <td>{{ user.end_date|date:"d.m.Y" }}</td>
+      <td>{{ user.username }}</td>
+      <td>{{ user.birthdate|date:"d.m.Y" }}</td>
+      <td>{{ user.get_education_display }}</td>
+      <td>{{ user.phone_number }}</td>
+      <td>{{ user.user.email }}</td>
+      <td>{{ user.address }}</td>
+      <td>{{ user.course.content }}</td>
+      <td>{{ user.time_to_beat.price }}</td>
+      <td>
+        {% if user.is_approved %}✅Проверено{% else %}Не проверено{% endif %}
+        <br>
+        {% if user.is_paid %}✅Оплачен{% else %}Не оплачен{% endif %}
+        <br>
+
+        {% if user.scans_approved %}✅Документы проверены{% else %}Документы не проверены{% endif %}        <br>
+        {% if user.attestation_finished %}✅Прошел аттестацию{% else %}Прошел аттестацию{% endif %}        <br>
+        {% if user.is_sended %}✅Отправили почтой диплом{% else %}Не отправили почтой диплом{% endif %}        <br>
+        {% if user.recieved_docs %}✅Получил документы{% else %}Не получил документы{% endif %}        <br>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="12">Нет пользователей</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div id="sended-users" class="tabcontent">
+  <h3 class="bg-sended">Отправлен</h3>
+  <table class="user-table">
+    <thead>
+    <tr>
+      <th>№</th>
+      <th>Дата начала обучения</th>
+      <th>Дата окончания обучения</th>
+      <th>ФИО</th>
+      <th>Дата рождения</th>
+      <th>Уровень образования</th>
+      <th>Конт. телефон</th>
+      <th>Эл. Почта</th>
+      <th>Адрес доставки</th>
+      <th>Название курса</th>
+      <th>Стоимость</th>
+      <th>Статус заявки</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for user in users_sended %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ user.date_joined|date:"d.m.Y" }}</td>
+      <td>{{ user.end_date|date:"d.m.Y" }}</td>
+      <td>{{ user.username }}</td>
+      <td>{{ user.birthdate|date:"d.m.Y" }}</td>
+      <td>{{ user.get_education_display }}</td>
+      <td>{{ user.phone_number }}</td>
+      <td>{{ user.user.email }}</td>
+      <td>{{ user.address }}</td>
+      <td>{{ user.course.content }}</td>
+      <td>{{ user.time_to_beat.price }}</td>
+      <td>
+        {% if user.is_approved %}✅Проверено{% else %}Не проверено{% endif %}
+        <br>
+        {% if user.is_paid %}✅Оплачен{% else %}Не оплачен{% endif %}
+        <br>
+
+        {% if user.scans_approved %}✅Документы проверены{% else %}Документы не проверены{% endif %}        <br>
+        {% if user.attestation_finished %}✅Прошел аттестацию{% else %}Прошел аттестацию{% endif %}        <br>
+        {% if user.is_sended %}✅Отправили почтой диплом{% else %}Не отправили почтой диплом{% endif %}        <br>
+        {% if user.recieved_docs %}✅Получил документы{% else %}Не получил документы{% endif %}        <br>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="12">Нет пользователей</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div id="recieved-users" class="tabcontent">
+  <h3 class="bg-recieved">Получен клиентом</h3>
+  <table class="user-table">
+    <thead>
+    <tr>
+      <th>№</th>
+      <th>Дата начала обучения</th>
+      <th>Дата окончания обучения</th>
+      <th>ФИО</th>
+      <th>Дата рождения</th>
+      <th>Уровень образования</th>
+      <th>Конт. телефон</th>
+      <th>Эл. Почта</th>
+      <th>Адрес доставки</th>
+      <th>Название курса</th>
+      <th>Стоимость</th>
+      <th>Статус заявки</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for user in users_recieved %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ user.date_joined|date:"d.m.Y" }}</td>
+      <td>{{ user.end_date|date:"d.m.Y" }}</td>
+      <td>{{ user.username }}</td>
+      <td>{{ user.birthdate|date:"d.m.Y" }}</td>
+      <td>{{ user.get_education_display }}</td>
+      <td>{{ user.phone_number }}</td>
+      <td>{{ user.user.email }}</td>
+      <td>{{ user.address }}</td>
+      <td>{{ user.course.content }}</td>
+      <td>{{ user.time_to_beat.price }}</td>
+      <td>
+        {% if user.is_approved %}✅Проверено{% else %}Не проверено{% endif %}
+        <br>
+        {% if user.is_paid %}✅Оплачен{% else %}Не оплачен{% endif %}
+        <br>
+
+        {% if user.scans_approved %}✅Документы проверены{% else %}Документы не проверены{% endif %}        <br>
+        {% if user.attestation_finished %}✅Прошел аттестацию{% else %}Прошел аттестацию{% endif %}        <br>
+        {% if user.is_sended %}✅Отправили почтой диплом{% else %}Не отправили почтой диплом{% endif %}        <br>
+        {% if user.recieved_docs %}✅Получил документы{% else %}Не получил документы{% endif %}        <br>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="12">Нет пользователей</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+<style>
+  .user-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+
+  .user-table th, .user-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .user-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
+
+  .user-table tr:hover {
+    background-color: #f1f1f1;
+  }
+
+  .user-table td a.buttons_admin {
+    text-decoration: none;
+    color: #007bff;
+  }
+
+  .user-table td a.buttons_admin:hover {
+    text-decoration: underline;
+  }
+
+  .tabcontent {
+    display: none;
+  }
+
+  .tabcontent.active {
+    display: block;
+  }
+</style>
+<script>
+  function openTab(evt, tabId) {
+    const tabcontent = document.getElementsByClassName("tabcontent");
+    const tablinks = document.getElementsByClassName("tablinks");
+    for (let i = 0; i < tabcontent.length; i++) {
+      tabcontent[i].classList.remove("active");
+    }
+    for (let i = 0; i < tablinks.length; i++) {
+      tablinks[i].classList.remove("active");
+    }
+    document.getElementById(tabId).classList.add("active");
+    evt.currentTarget.classList.add("active");
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelector('.tablinks').click();
+  });
+</script>
+{% endblock %}
