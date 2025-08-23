@@ -27,6 +27,30 @@
         <br>
         <br>
 
+        <style>
+            .reset-password {
+                background:#007bff; 
+                font-size:16px; 
+                text-align:center;    
+                display:flex; 
+                align-items:center; 
+                justify-content:center;
+                min-height:38px; 
+                padding:0 12px; 
+                border-radius:5px;
+                text-decoration:none; 
+                color:#fff;
+                transition: background-color 0.3s ease;
+            }
+            .reset-password:hover {
+                background:#0056b3; 
+            }
+        </style>
+
+        <a class="reset-password" href="{% url 'password_reset' %}">
+            Забыл пароль
+        </a>
+        <br>
         <div class="social-login">
             {% load socialaccount %}
             <a href="{% provider_login_url 'google' %}?next=/" class="social-button google-button">
