@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+</head>
+<body>
+
+<div class="tab">
+  <a class="tablinks" href="?status=">Все пользователи</a>
+  <a class="tablinks" href="?status=paid">Оплачено</a>
+  <a class="tablinks" href="?status=docs_pending">Документы на проверке</a>
+  <a class="tablinks" href="?status=docs_verified">Документы проверены</a>
+  <a class="tablinks" href="?status=attestation">Аттестация</a>
+  <a class="tablinks" href="?status=sent">Отправлен</a>
+  <!-- <a class="tablinks" href="?status">Получен клиентом</a> -->
+  <a class="tablinks" href="?status=new">Новая заявка</a>
+</div>
+<div class="tab">
+  <a class="tablinks" href="?status={{ status }}&sort=down">Сортировать в алфавитном порядке</a>
+  <a class="tablinks" href="?status={{ status }}&sort=up">Сортировать в обратном алфавитном порядке</a>
+</div>
+
+<div class="tab">
+  <a class="tablinks" href="{% url 'userregs_export_xlsx' %}?status={{ status }}">Экспорт В Excel</a>
+</div>
+
+<div id="all-users" class="tabcontent active">
+  <h3 class="bg-all-users">Все пользователи</h3>
+  <table class="user-table">
+    <thead>
+    <tr>
+      <th>№</th>
+      <th>Дата начала обучения</th>
+      <th>Дата окончания обучения</th>
+      <th>ФИО</th>
+      <th>Дата рождения</th>
+      <th>Уровень образования</th>
+      <th>Конт. телефон</th>
+      <th>Эл. Почта</th>
+      <th>Адрес доставки</th>
+      <th>Название курса</th>
+      <th>Стоимость</th>
+      <th>Статус заявки 
+    {{ test }}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for user in all_users %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ user.date_joined|date:"d.m.Y" }}</td>
+      <td>{{ user.end_date|date:"d.m.Y" }}</td>
+      <td>{{ user.username }}</td>
+      <td>{{ user.birthdate|date:"d.m.Y" }}</td>
+      <td>{{ user.get_education_display }}</td>
+      <td>{{ user.phone_number }}</td>
+      <td>{{ user.user.email }}</td>
+      <td>{{ user.address }}</td>
+      <td>{{ user.course.content }}</td>
+      <td>{{ user.time_to_beat.price }}</td>
+
+      <td>
+        {{ status }}
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="12">Нет пользователей</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .user-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+
+  .user-table th, .user-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .user-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
+
+  .user-table tr:hover {
+    background-color: #f1f1f1;
+  }
+
+  .user-table td a.buttons_admin {
+    text-decoration: none;
+    color: #007bff;
+  }
+
+  .user-table td a.buttons_admin:hover {
+    text-decoration: underline;
+  }
+
+  .tabcontent {
+    display: none;
+  }
+
+  .tabcontent.active {
+    display: block;
+  }
+</style>
+<script>
+  // function openTab(evt, tabId) {
+  //   const tabcontent = document.getElementsByClassName("tabcontent");
+  //   const tablinks = document.getElementsByClassName("tablinks");
+  //   for (let i = 0; i < tabcontent.length; i++) {
+  //     tabcontent[i].classList.remove("active");
+  //   }
+  //   for (let i = 0; i < tablinks.length; i++) {
+  //     tablinks[i].classList.remove("active");
+  //   }
+  //   document.getElementById(tabId).classList.add("active");
+  //   evt.currentTarget.classList.add("active");
+  // }
+
+  // document.addEventListener('DOMContentLoaded', function () {
+  //   document.querySelector('.tablinks').click();
+  // });
+</script>
+{% endblock %}

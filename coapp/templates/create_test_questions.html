@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>{{ test }}</h1>
+
+<form method="post">
+  {% csrf_token %}
+  {{ question_formset.management_form }}
+
+  {% for form in question_formset.forms %}
+    <div class="item-content">
+      <h3>Вопрос {{ forloop.counter }}</h3>
+      {{ form.position }}
+      <p>
+        {{ form.question.label_tag }}<br>
+        {{ form.question }}
+      </p>
+      <p>
+        {{ form.text_1.label_tag }}<br>
+        {{ form.text_1 }}
+        {{ form.is_1correct }} {{ form.is_1correct.label_tag }}
+      </p>
+      <p>
+        {{ form.text_2.label_tag }}<br>
+        {{ form.text_2 }}
+        {{ form.is_2correct }} {{ form.is_2correct.label_tag }}
+      </p>
+      <p>
+        {{ form.text_3.label_tag }}<br>
+        {{ form.text_3 }}
+        {{ form.is_3correct }} {{ form.is_3correct.label_tag }}
+      </p>
+      <p>
+        {{ form.text_4.label_tag }}<br>
+        {{ form.text_4 }}
+        {{ form.is_4correct }} {{ form.is_4correct.label_tag }}
+      </p>
+    </div>
+  {% endfor %}
+
+  <button type="submit">Сохранить</button>
+</form>
+
+{% endblock %}

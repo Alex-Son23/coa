@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+<div class="profile_main">
+    <div class="course_list">
+        <div class="course_card">
+
+            <div class="course_item"
+                 data-category="{{ course.category }}"
+                 data-topic="{{ course.topic }}"
+                 data-term="{{ course.termsofstudy }}"
+                 onclick="location.href='{% url 'course_view' course.id %}'"
+                 style="cursor: pointer;">
+
+                <div class="course_container">
+                    <div class="course_description">
+                        <p><strong>{{ course.content }}</strong></p>
+                    </div>
+
+                    <div class="course_threelines">
+                        <p><strong>Тема:</strong> {{ course.topic }}</p>
+                        <p><strong>Категория:</strong> {{ course.category }}</p>
+                    </div>
+                </div>
+
+                <div class="course_catprice">
+                    <p class="category"><strong>Тема:</strong> {{ course.category }}</p>
+                    <p class="price"><strong>Цена:</strong> {{ course.price }} <strong>  ₽</strong> </p>
+                </div>
+
+                <div class="course_also">
+                    <p>Нажмите на карточку чтобы узнать подробнее</p>
+                </div>
+            </div>
+    <a href="{% url 'register' course.id %}" style="color: green;">Регистрация на курс</a>
+</div>
+{% endblock %}

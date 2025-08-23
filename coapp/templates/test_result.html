@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<h1>Результат теста</h1>
+<div class="result_container">
+
+  <p class="result_percentage"><strong>Оценка: </strong>{{ percentage|floatformat:2 }}%</p>
+  <p class="result_grade">{{ grade }}</p>
+</div>
+<div class="result_back-container">
+  <a class="result_back-link" href="{% url 'course_files' course.id %}">Назад к курсу</a>
+</div>
+<br><br><br><br><br><br><br><br><br>
+{% endblock %}
