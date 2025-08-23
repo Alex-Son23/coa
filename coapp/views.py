@@ -6,7 +6,7 @@ from datetime import timedelta, datetime
 from .forms import *
 from .models import *
 from django.http import HttpResponse, Http404, HttpResponseForbidden
-
+from django.db.models import Q
 import os
 from django.contrib import messages
 from django.utils import timezone
@@ -20,6 +20,11 @@ from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 from yookassa import Configuration, Payment
 from .models import PaymentLog
+
+from openpyxl import Workbook
+from openpyxl.styles import Font
+from io import BytesIO
+
 
 def home(request):
     user = request.user if request.user.is_authenticated else None
@@ -563,41 +568,238 @@ def pdf_view(request, file_name):
 
 
 
+# @login_required
+# def check_users(request):
+#     if not request.user.is_staff:
+#         return render(request, '403.html')
+
+#     all_users = UserReg.objects.select_related('user', 'course').all()
+
+#     users_paid = list(all_users.filter(is_paid=True))
+
+#     users_docs_on_check = [user for user in all_users if user.picture1 and user.picture2 and user.is_paid]
+#     users_docs_checked = [user for user in all_users if
+#                           user.picture1 and user.picture2 and user.is_paid and user.scans_approved]
+#     users_sended = [user for user in all_users if
+#                     user.picture1 and user.picture2 and user.is_paid and user.scans_approved and user.is_sended]
+#     users_recieved = [user for user in all_users if
+#                       user.picture1 and user.picture2 and user.is_paid and user.scans_approved and user.is_sended and user.recieved_docs]
+#     users_finished = [user for user in all_users if
+#                       user.picture1 and user.picture2 and user.is_paid and user.scans_approved and user.is_sended and user.recieved_docs and user.attestation_finished]
+
+#     # Now remove duplicates from previous lists
+#     users_recieved = [user for user in users_recieved if user not in users_finished]
+#     users_sended = [user for user in users_sended if user not in users_finished and user not in users_recieved]
+#     users_docs_checked = [user for user in users_docs_checked if user not in users_finished and user not in users_recieved and user not in users_sended]
+#     users_docs_on_check = [user for user in users_docs_on_check if user not in users_finished and user not in users_recieved and user not in users_sended and user not in users_docs_checked]
+#     users_paid = [user for user in users_paid if user not in users_finished and user not in users_recieved and user not in users_sended and user not in users_docs_checked and user not in users_docs_on_check]
+#     print({
+#         'all_users': all_users,
+#         'users_paid': users_paid,
+#         'users_docs_on_check': users_docs_on_check,
+#         'users_docs_checked': users_docs_checked,
+#         'users_sended': users_sended,
+#         'users_recieved': users_recieved,
+#         'users_finished': users_finished,
+#     })
+#     return render(request, 'check_users.html', {
+#         'all_users': all_users,
+#         'users_paid': users_paid,
+#         'users_docs_on_check': users_docs_on_check,
+#         'users_docs_checked': users_docs_checked,
+#         'users_sended': users_sended,
+#         'users_recieved': users_recieved,
+#         'users_finished': users_finished,
+#     })
+
+STATUS_LABELS = {
+    "new": "Новая заявка",
+    "paid": "Оплачен",
+    "docs_pending": "Документы на проверке",
+    "docs_verified": "Документы проверены",
+    "attestation": "Аттестация",
+    "sent": "Отправлен почтой РФ",
+}
+
+def _docs_attached_q():
+    # Есть хотя бы один файл (учитываем NULL и пустые строки)
+    return (
+        (Q(picture1__isnull=False) & ~Q(picture1="")) |
+        (Q(picture2__isnull=False) & ~Q(picture2=""))
+    )
+
+
+STATUS_FILTERS = {
+    "new": Q(is_paid=False),
+    "paid": Q(is_paid=True) & ~_docs_attached_q(),
+    "docs_pending": Q(is_paid=True) & _docs_attached_q() & Q(scans_approved=False),
+    "docs_verified": Q(is_paid=True) & Q(scans_approved=True) & Q(attestation_finished=False),
+    "attestation": Q(is_paid=True) & Q(scans_approved=True) & Q(attestation_finished=True) & Q(is_sended=False),
+    "sent": Q(is_paid=True) & Q(scans_approved=True) & Q(attestation_finished=True) & Q(is_sended=True),
+}
+
+def _compute_status_code(obj: UserReg) -> str:
+    docs_attached = bool(obj.picture1) or bool(obj.picture2)
+
+    if not obj.is_paid:
+        return "new"
+    if obj.is_paid and not docs_attached:
+        return "paid"
+    if obj.is_paid and docs_attached and not obj.scans_approved:
+        return "docs_pending"
+    if obj.is_paid and obj.scans_approved and not obj.attestation_finished:
+        return "docs_verified"
+    if obj.is_paid and obj.scans_approved and obj.attestation_finished and not obj.is_sended:
+        return "attestation"
+    return "sent"
+
+
+def _resolve_course_name_field() -> str:
+    """
+    Пытаемся понять, как называется поле у модели Course: name или title.
+    Если ни одного нет — сортируем по id курса.
+    """
+    CourseModel = UserReg._meta.get_field("course").remote_field.model
+    try:
+        CourseModel._meta.get_field("name")
+        return "course__name"
+    except Exception:
+        pass
+    try:
+        CourseModel._meta.get_field("title")
+        return "course__title"
+    except Exception:
+        pass
+    return "course__id"
+
+
+def _filtered_sorted_qs(request):
+    status_param = (request.GET.get("status") or "").strip().lower()
+    sort_param   = (request.GET.get("sort") or "").strip().lower()
+
+    qs = UserReg.objects.select_related("user", "course")
+
+    # фильтр по статусу
+    if status_param:
+        q = STATUS_FILTERS.get(status_param)
+        if q is not None:
+            qs = qs.filter(q)
+        else:
+            qs = qs.none()
+
+    # сортировка по курсу
+    if sort_param == "up":
+        qs = qs.order_by('course__category')  # вторичный ключ для стабильности
+    elif sort_param == "down":
+        qs = qs.order_by("-course__category")
+    else:
+        qs = qs.order_by("-date_joined", "id")  # сортировка по умолчанию
+
+    return qs, status_param, sort_param
+
+
+# STATUS_LABELS, STATUS_FILTERS, _compute_status_code
+
+def _docs_attached(obj: UserReg) -> bool:
+    return bool(obj.picture1) or bool(obj.picture2)
+
+
 @login_required
 def check_users(request):
     if not request.user.is_staff:
         return render(request, '403.html')
+    
+    qs, status_param, sort_param = _filtered_sorted_qs(request)
 
-    all_users = UserReg.objects.select_related('user', 'course').all()
+    all_users = []
+    items = []
+    for obj in qs:
+        code = _compute_status_code(obj)
+        items.append(
+            {
+                "obj": obj,
+                "status_code": code,
+                "status_label": STATUS_LABELS[code],
+            }
+        )
+        all_users.append(obj)
 
-    users_paid = list(all_users.filter(is_paid=True))
-
-    users_docs_on_check = [user for user in all_users if user.picture1 and user.picture2 and user.is_paid]
-    users_docs_checked = [user for user in all_users if
-                          user.picture1 and user.picture2 and user.is_paid and user.scans_approved]
-    users_sended = [user for user in all_users if
-                    user.picture1 and user.picture2 and user.is_paid and user.scans_approved and user.is_sended]
-    users_recieved = [user for user in all_users if
-                      user.picture1 and user.picture2 and user.is_paid and user.scans_approved and user.is_sended and user.recieved_docs]
-    users_finished = [user for user in all_users if
-                      user.picture1 and user.picture2 and user.is_paid and user.scans_approved and user.is_sended and user.recieved_docs and user.attestation_finished]
-
-    # Now remove duplicates from previous lists
-    users_recieved = [user for user in users_recieved if user not in users_finished]
-    users_sended = [user for user in users_sended if user not in users_finished and user not in users_recieved]
-    users_docs_checked = [user for user in users_docs_checked if user not in users_finished and user not in users_recieved and user not in users_sended]
-    users_docs_on_check = [user for user in users_docs_on_check if user not in users_finished and user not in users_recieved and user not in users_sended and user not in users_docs_checked]
-    users_paid = [user for user in users_paid if user not in users_finished and user not in users_recieved and user not in users_sended and user not in users_docs_checked and user not in users_docs_on_check]
-
-    return render(request, 'check_users.html', {
+    print({
         'all_users': all_users,
-        'users_paid': users_paid,
-        'users_docs_on_check': users_docs_on_check,
-        'users_docs_checked': users_docs_checked,
-        'users_sended': users_sended,
-        'users_recieved': users_recieved,
-        'users_finished': users_finished,
     })
+    return render(request, 'check_users_copy.html', {
+        'all_users': all_users,
+        'status': status_param
+    })
+
+
+def userregs_export_xlsx(request):
+    qs, status_param, sort_param = _filtered_sorted_qs(request)
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Заявки"
+
+    headers = [
+        "ID",
+        "ФИО",
+        "Курс",
+        "Цена",
+        "Оплачен",
+        "Документы прикреплены",
+        "Документы проверены",
+        "Аттестация пройдена",
+        "Отправлен почтой РФ",
+        "Статус (ярлык)",
+        "Дата регистрации",
+        "Дата завершения",
+        "Телефон/Email",
+    ]
+    ws.append(headers)
+    for cell in ws[1]:
+        cell.font = Font(bold=True)
+    ws.freeze_panes = "A2"
+
+    def yn(v: bool) -> str:
+        return "Да" if v else "Нет"
+
+    for obj in qs.iterator():
+        print(obj.course.category, obj.course.category)
+        code = _compute_status_code(obj)
+        row = [
+            obj.id,
+            obj.username,
+            str(obj.course.content),
+            str(obj.time_to_beat.price),
+            yn(obj.is_paid),
+            yn(_docs_attached(obj)),
+            yn(obj.scans_approved),
+            yn(obj.attestation_finished),
+            yn(obj.is_sended),
+            f"{STATUS_LABELS.get(code, code)}",
+            timezone.localtime(obj.date_joined).strftime("%d.%m.%Y %H:%M") if obj.date_joined else "",
+            timezone.localtime(obj.end_date).strftime("%d.%m.%Y %H:%M") if obj.end_date else "",
+            (obj.phone_number or ""),
+        ]
+        print(row)
+        ws.append(row)
+
+    # Небольшие ширины колонок
+    widths = [6, 35, 32, 10, 22, 20, 18, 20, 24, 20, 20, 24]
+    for i, w in enumerate(widths, start=1):
+        ws.column_dimensions[chr(64 + i) if i <= 26 else f"A{chr(64 + i - 26)}"].width = w
+
+    buf = BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+
+    filename = f"userregs_{status_param or 'all'}_{timezone.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+    resp = HttpResponse(
+        buf.getvalue(),
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    resp["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return resp
 
 def uc_pdf(request):
 

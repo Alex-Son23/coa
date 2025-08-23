@@ -1,4 +1,5 @@
 from django.urls import path
+from django.contrib.auth import views as auth_views
 from .views import *
 
 
@@ -23,6 +24,7 @@ urlpatterns = [
     path('add_course/', add_course, name='add_course'),
 
     path('check_users/', check_users, name='check_users'),
+    path("check_users/export-xlsx/", userregs_export_xlsx, name="userregs_export_xlsx"),
 
     path('uc_pdf/', uc_pdf, name='uc_pdf'),
     path('pc_pdf/', pc_pdf, name='pc_pdf'),
@@ -35,6 +37,47 @@ urlpatterns = [
 
     path("payment/return/", payment_return, name="payment_return"),
     path("payment/webhook/", yookassa_webhook, name="yookassa_webhook"),
+
+    path(
+        "password-reset/",
+        auth_views.PasswordResetView.as_view(
+            template_name="password_reset_form.html",
+            # email_template_name="password_reset_email.txt",
+            # html_email_template_name="password_reset_email.html",  # опционально
+            # subject_template_name="password_reset_subject.txt",
+            success_url="/password-reset/done/",
+            from_email="sashason1990@yandex.ru",  # поменяйте
+        ),
+        name="password_reset",
+    ),
+
+    # Сообщение «письмо отправлено»
+    path(
+        "password-reset/done/",
+        auth_views.PasswordResetDoneView.as_view(
+            template_name="password_reset_done.html"
+        ),
+        name="password_reset_done",
+    ),
+
+    # Переход по ссылке из письма: ввод нового пароля
+    path(
+        "reset/<uidb64>/<token>/",
+        auth_views.PasswordResetConfirmView.as_view(
+            template_name="password_reset_confirm.html",
+            success_url="/reset/complete/",
+        ),
+        name="password_reset_confirm",
+    ),
+
+    # Готово
+    path(
+        "reset/complete/",
+        auth_views.PasswordResetCompleteView.as_view(
+            template_name="password_reset_complete.html"
+        ),
+        name="password_reset_complete",
+    ),
 
 ]
 

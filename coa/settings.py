@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-7q1!b6ynk8a(qj52k2fp)!xuy7y6#k_87d)&g+gacn&5vkx+25'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -85,7 +85,7 @@ ROOT_URLCONF = 'coa.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -134,7 +134,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-ru'
 
 TIME_ZONE = 'UTC'
 
@@ -196,4 +196,20 @@ YOOKASSA_SECRET_KEY = 'live_Hrwn9RKCsw4l7opSURQg5EVIAs90GJzr63evNYdhJik'
 YOOKASSA_RETURN_URL = 'https://xn--73-6kcpuhmaikdgbk.xn--p1ai/payment/return/'
 
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://precociously-interested-glassfish.cloudpub.ru"
+]
 
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.yandex.ru"
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = "sashason1990@yandex.ru"
+EMAIL_HOST_PASSWORD = "vfwnqonbqllxgipw"  # пароль приложения
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+AUTH_PASSWORD_VALIDATORS = [
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", "OPTIONS": {"min_length": 8}},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+]
