@@ -1,0 +1,25 @@
+# Python/Django
+__pycache__/
+*.py[cod]
+*.egg-info/
+db.sqlite3
+.env
+.env.* 
+*.log
+
+# venv
+venv/
+.venv/
+
+# Static/Media (обычно НЕ коммитим)
+public_html/static/
+public_html/media/
+
+# tmp/logs/host
+tmp/
+restart.tmp
+*.tar
+*.zip
+.idea/
+.vscode/
+.DS_Store
