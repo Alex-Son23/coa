@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+
+<div class="form-container">
+    <a href="/" class="user-menu--profile">
+        <img src="../../static/images/back.png" alt="" height="15px">Вернуться
+    </a>
+    <h2>Вход</h2>
+    <form method="post">
+        {% csrf_token %}
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <input type="text" name="username" placeholder="Имейл" required class="input-field">
+        <input type="password" name="password" placeholder="Пароль" required class="input-field">
+
+        {% load socialaccount %}
+        {% providers_media_js %}
+
+        <button type="submit" class="btn">Войти</button>
+        <br>
+        <br>
+
+        <div class="social-login">
+            {% load socialaccount %}
+            <a href="{% provider_login_url 'google' %}?next=/" class="social-button google-button">
+                <img src="../../static/images/google.png" alt="Google" class="social-icon"> Войти с Google
+            </a>
+
+            <a href="{% provider_login_url 'facebook' %}" class="social-button facebook-button">
+                <img src="../../static/images/facebook.png" alt="Facebook" class="social-icon"> Войти с Facebook
+            </a>
+
+            <a href="{% provider_login_url 'vk' %}" class="social-button vk-button">
+                <img src="../../static/images/vk.png" alt="ВКонтакте" class="social-icon"> Войти с ВКонтакте
+            </a>
+            <br>
+            <br>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>
+
+{% endblock %}

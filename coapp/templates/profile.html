@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<div class="profile_container">
+    <div class="profile_main">
+        <h2>Ваш профиль</h2>
+        <div class="profile-info">
+            <div class="course_container">
+                <div class="profile_stats">
+                    <p style="font: 500 16px / 150% var(--third-family); color: #18181b;">
+                        <img src="{% static 'images/mini-user.png' %}" alt="" height="20px" style="vertical-align: middle; margin-right: 5px">
+                        Логин: <strong style="font: 400 16px / 150% var(--third-family); color: #18181b; opacity: 0.8">{{ user.username }}</strong>
+                    </p>
+                    <p style="font: 500 16px / 150% var(--third-family); color: #18181b;">
+                        <img src="{% static 'images/mini-mail.png' %}" alt="" height="20px" style="vertical-align: middle; margin-right: 5px">
+                        Email: <strong style="font: 400 16px / 150% var(--third-family); color: #18181b; opacity: 0.8">{{ user.email }}</strong>
+                    </p>
+                </div>
+                <div class="profile_picture">
+                    <img src="{% static 'images/avatar.png' %}" alt="Profile Picture" class="profile-picture">
+                </div>
+            </div>
+        </div>
+        <div class="profile_card">
+            {% if courses_info %}
+
+            {% for course_info in courses_info %}
+            <div class="profile_item"
+                 data-category="{{ course_info.course.category }}"
+                 data-topic="{{ course_info.course.topic }}"
+                 data-term="{{ course_info.course.termofstudy }}"
+                 style="cursor: pointer;"
+                 onclick="location.href='{% url 'course_files' course_info.course.id %}'">
+
+                <div class="course_container">
+                    <div class="course_description">
+                        <p><strong>{{ course_info.course.content }}</strong></p>
+                        <br>
+                        <hr>
+                        <br>
+
+                        <p class="result_grade"><strong>Ваша оценка: </strong>{{ course_info.grade }}</p>
+                        <br>
+                        {% if course_info.course.pdf_1 %}
+                        <hr>
+                        <br>
+                        <a href="{{ course_info.course.pdf_1.url }}" target="_blank" onclick="event.stopPropagation()">Договор</a>
+
+                        {% endif %}
+                        <br>
+                        <br>
+                        {% if course_info.course.pdf_2 %}
+                        <a href="{{ course_info.course.pdf_2.url }}" target="_blank" onclick="event.stopPropagation()">Учебный план</a>
+
+                        {% endif %}
+                        <br>
+                        <br>
+                        {% if course_info.course.pdf_3 %}
+                        <a href="{{ course_info.course.pdf_3.url }}" target="_blank" onclick="event.stopPropagation()">Программа обучения</a>
+
+
+                        {% endif %}
+
+                    </div>
+
+                    <div class="course_threelines">
+
+                        {% if course_info.course in paid_courses %}
+                        <p>✅Курс оплачен.</p>
+                        {% else %}
+                        <p>Необходимо оплатить курс.</p>
+                        {% endif %}
+
+                        <br>
+                        <hr>
+                        <br>
+
+                        {% if course_info.is_approved %}
+                        <p>✅Данные при регистрации проверены.</p>
+                        {% else %}
+                        <p>Данные при регистрации не проверены.</p>
+                        {% endif %}
+                        <br>
+                        <hr>
+                        <br>
+                        {% if course_info.scans_approved %}
+                        <p>✅Ваши документы подтверждены.</p>
+                        {% elif course_info.pictures_uploaded %}
+                        <p>⏳Ваши документы отправлены.</p>
+                        {% else %}
+                        <a href="{% url 'upload_files' course_info.course.id %}">Необходимо отправить документы на проверку</a>
+                        {% endif %}
+
+
+                        <br>
+                        <hr>
+                        <br>
+
+                        {% if course_info.is_sended %}
+                        <p>✅Диплом отправлен почтой.</p>
+                        {% else %}
+                        <p>Диплом еще не отправлен почтой.</p>
+                        {% endif %}
+
+
+                    </div>
+                </div>
+
+                <div class="course_catprice">
+                    <p class="price">
+                        {% if course_info.time_to_beat_info %}
+                        {{ course_info.time_to_beat_info.time }} : {{ course_info.time_to_beat_info.price }} ₽
+                        {% else %}
+                    <p>Нет данных по срокам и ценам.</p>
+                    {% endif %}
+                    </p>
+                </div>
+                <div class="course_also">
+                    <p>Нажмите на карточку чтобы перейти к материалам</p>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p>У вас нет доступных курсов.</p>
+            {% endif %}
+        </div>
+
+        <br>
+        <br>
+        <a href="{% url 'logout' %}" class="action-link" style="color: red;">Выйти из аккаунта</a>
+    </div>
+</div>
+{% endblock %}

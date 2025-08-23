@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Академия "АНТА"</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+    <link rel="icon" href="/static/images/favicon.png" type="image/png">
+    <link rel="shortcut icon" href="/static/images/favicon.png" type="image/png">
+
+    <script>
+        // Check if the current URL contains '/add_course/' or '/check_users/'
+        window.onload = function() {
+            const currentPath = window.location.pathname;
+            if (currentPath.includes('/add_course/') || currentPath.includes('/check_users/')) {
+                document.querySelector('.header').classList.add('hidden');  // Hide the header if path contains '/add_course/' or '/check_users/'
+            }
+        };
+    </script>
+</head>
+<body>
+<div class="header">
+    <a href="/" class="header-name" style="color: #ab8a59; text-decoration: none;">
+        <img src="../../static/images/logo.png" alt="" height="50px">
+        Академия развития <br> и профессиональной переподготовки "АНТА"
+    </a>
+
+    <div class="header-right"> <!-- New container for buttons -->
+        {% if username %}
+
+        {% if request.path == "/profile_view/" or dont_show_header  or request.path == "/check_users/" or request.path == "/admin_panel/" or request.path == "/check_users_paid/" or request.path == "/check_users_docs_on_check/" or request.path == "/check_users_docschecked/" or request.path == "/check_users_finished/" or request.path == "/check_users_sended/" or request.path == "/check_users_recieved/" %}
+
+        {% else %}
+            {% if admin_status %}
+                <a href="/admin_panel/" class="user-menu--profile">
+                    <img src="../../static/images/user.png" alt="" height="30px">Администрирование
+                </a>
+            {% else %}
+
+            <a href="/profile_view/" class="user-menu--profile">
+                <img src="../../static/images/user.png" alt="" height="30px">Профиль
+            </a>
+            {% endif %}
+        {% endif %}
+        {% else %}
+        <button id="standartbutton" onclick="location.href='{% url 'login' %}'">Войти</button>
+        {% endif %}
+
+    </div>
+
+
+
+</div>
+{% if request.path == "/check_users/" or request.path == "/course_administration/" or request.path == "/add_course/" or request.path == "/admin_panel/" or request.path == "/check_users/" or dont_show_header%}
+<div class="header-contact_admin">
+<!--    <div class="contact-info">-->
+<!--        <span><a href="tel:+79956537586">+7 995 653 75 86</a></span> |-->
+<!--        <span><a href="mailto:aripp.anta@mail.ru">aripp.anta@mail.ru</a></span>-->
+<!--    </div>-->
+    <a href="/admin_panel/"  class="home-button">НА ГЛАВНУЮ</a>
+</div>
+{% else %}
+<div class="header-contact">
+    <div class="contact-info">
+        <span><a href="tel:+79956537586">+7 995 653 75 86</a></span> |
+        <span><a href="mailto:aripp.anta@mail.ru">aripp.anta@mail.ru</a></span>
+    </div>
+    <a href="https://дипломонлайн.рф/" class="home-button">НА ГЛАВНУЮ</a>
+</div>
+{% endif %}
+<div class="headershadow"></div>
+
+{% block content %}
+{% endblock %}
+<br><br>
+<footer class="footer">
+    <div>
+        Наши контакты:<br><br>
+        ООО "Академия развития и профессиональной переподготовки АНТА"<br>
+        Юр. адрес: 432030, РФ, г. Ульяновск, пр-т Лесной, 1/77<br>
+        Телефон: <a href="tel:+79956537586">+7 995 653 75 86</a><br>
+        Почта: <a href="mailto:aripp.anta@mail.ru">aripp.anta@mail.ru</a>
+    </div>
+</footer>
+</body>
+</html>

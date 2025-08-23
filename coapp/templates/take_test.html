@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="take_test-container">
+  <h1>Тест: {{ test.course.content }}</h1>
+  <form method="post" class="take_test-form">
+    {% csrf_token %}
+    <div class="take_questions">
+      {% for question in questions %}
+      <div class="take_question">
+        <p class="take_question-text">{{ forloop.counter }}. {{ question.question }}</p>
+
+        <label class="take_answer-label">
+          <input type="radio" name="answers_{{ question.id }}" value="1">
+          {{ question.text_1 }}
+        </label><br>
+
+        <label class="take_answer-label">
+          <input type="radio" name="answers_{{ question.id }}" value="2">
+          {{ question.text_2 }}
+        </label><br>
+
+        <label class="take_answer-label">
+          <input type="radio" name="answers_{{ question.id }}" value="3">
+          {{ question.text_3 }}
+        </label><br>
+
+        <label class="take_answer-label">
+          <input type="radio" name="answers_{{ question.id }}" value="4">
+          {{ question.text_4 }}
+        </label><br>
+      </div>
+      {% endfor %}
+    </div>
+
+    <button type="submit" class="take_submit-button">Завершить</button>
+  </form>
+</div>
+
+{% endblock %}

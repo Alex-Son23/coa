@@ -13,7 +13,7 @@ venv/
 
 # Static/Media (обычно НЕ коммитим)
 public_html/static/
-public_html/media/
+media/
 
 # tmp/logs/host
 tmp/
@@ -23,3 +23,4 @@ restart.tmp
 .idea/
 .vscode/
 .DS_Store
+secret_key

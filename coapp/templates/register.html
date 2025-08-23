@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<div class="form-container">
+    <div class="backbit">
+        <a href="/" class="user-menu--profile">
+            <img src="{% static 'images/back.png' %}" alt="" height="15px">Вернуться
+        </a>
+    </div>
+    <h2>Регистрация</h2>
+
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <h3>Данные для регистрации</h3>
+        <label for="email">Адрес электронной почты для входа:</label>
+        <input type="email" name="email" value="{{ email|default:'' }}" required><br>
+
+        <label for="password">Пароль:</label>
+        <input type="password" name="password" required><br>
+
+        <label for="username">Полные ФИО:</label>
+        <input type="text" name="username" value="{{ username|default:'' }}" required><br>
+
+        <label for="phone_number">Номер телефона или адрес электронной почты для связи:</label>
+        <input type="text" name="phone_number" value="{{ phone_number|default:'' }}"><br>
+
+        <label for="address">Адрес:</label>
+        <input type="text" name="address" value="{{ address|default:'' }}" required><br>
+        <br><br>
+        <label for="birthdate">Дата рождения:</label>
+        <input type="date" name="birthdate" value="{{ birthdate|default:'' }}" required><br>
+        <br><br>
+        <label for="snils">СНИЛС:</label>
+        <input type="text" name="snils" value="{{ snils|default:'' }}" required><br>
+        <br><br>
+        <label for="gender">Пол:</label>
+        <select name="gender" required>
+            <option value="male" {% if gender == 'male' %}selected{% endif %}>Мужчина</option>
+            <option value="female" {% if gender == 'female' %}selected{% endif %}>Женщина</option>
+        </select><br>
+        <br><br>
+        <label for="education">Уровень образования:</label>
+        <select name="education" required>
+            <option value="basic" {% if education == 'basic' %}selected{% endif %}>Основное общее (5-9 классы)</option>
+            <option value="secondary" {% if education == 'secondary' %}selected{% endif %}>Среднее общее (10-11 классы)</option>
+            <option value="specialized" {% if education == 'specialized' %}selected{% endif %}>Среднее специальное образование</option>
+            <option value="higher" {% if education == 'higher' %}selected{% endif %}>Высшее образование</option>
+        </select><br>
+        <br><br>
+        <label for="time_to_beat">Выберите срок обучения:</label>
+        <select name="time_to_beat" required>
+            {% for time in course_times %}
+            <option value="{{ time.id }}" {% if time.id == time_to_beat.id %}selected{% endif %}>
+                {{ time.time }} - {{ time.price }}₽
+            </option>
+            {% endfor %}
+        </select><br><br>
+
+        <label for="promocode">Промокод:</label>
+        <input type="text" name="promocode" value="{{ promocode|default:'' }}"><br>
+
+        <strong>После оплаты у вас будет автоматически сформирован личный кабинет, для входа используйте ваши номер телефона или E-mail.
+            <br><br>
+            *Для доступа к обучению в личном кабинете нужно подготовить и отправить на проверку документы о высшем или среднем профессиональном образовании.
+        </strong>
+        <br><br>
+        <label>
+            <input type="checkbox" name="agreement" required>
+            Нажимая на кнопку, Вы даете свое согласие на обработку моих персональных данных и соглашаетесь с нашим <a href="/uc_pdf/">Договором публичной оферты</a> и <a href="/pc_pdf/">Политикой конфиденциальности.</a>
+        </label><br><br>
+
+        <button type="submit" class="btn">Регистрация</button>
+    </form>
+
+    <div class="social-login">
+        {% load socialaccount %}
+        <a href="{% provider_login_url 'google' %}?next=/" class="social-button google-button">
+            <img src="{% static 'images/google.png' %}" alt="Google" class="social-icon"> Войти с Google
+        </a>
+
+        <a href="{% provider_login_url 'facebook' %}" class="social-button facebook-button">
+            <img src="{% static 'images/facebook.png' %}" alt="Facebook" class="social-icon"> Войти с Facebook
+        </a>
+
+        <a href="{% provider_login_url 'vk' %}" class="social-button vk-button">
+            <img src="{% static 'images/vk.png' %}" alt="ВКонтакте" class="social-icon"> Войти с ВКонтакте
+        </a>
+    </div>
+</div>
+
+{% endblock %}
