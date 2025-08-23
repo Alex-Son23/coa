@@ -46,7 +46,7 @@ urlpatterns = [
             # html_email_template_name="password_reset_email.html",  # опционально
             # subject_template_name="password_reset_subject.txt",
             success_url="/password-reset/done/",
-            from_email="sashason1990@yandex.ru",  # поменяйте
+            from_email="tanya22022002@yandex.ru",  # поменяйте
         ),
         name="password_reset",
     ),
