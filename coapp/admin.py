@@ -55,3 +55,5 @@ admin.site.register(Test)
 admin.site.register(Question)
 
 admin.site.register(CourseGrade)
+
+admin.site.register(Promocode)

@@ -3,7 +3,8 @@ from django.utils import timezone
 from django.conf import settings
 from django.db import models
 from django.utils.text import slugify as django_slugify
-from datetime import timedelta
+from datetime import timedelta, datetime
+from django.core.validators import MaxValueValidator
 
 def custom_slugify(value):
 
@@ -122,13 +123,16 @@ class CourseGrade(models.Model):
     class Meta:
         verbose_name = "Оценки за курс"
         verbose_name_plural = "Оценки за курсы"
+    
+    def __str__(self):
+        return f"{self.user.email} - {self.course}"
 
 
 class CustomUser(AbstractUser):
     email = models.EmailField(max_length=100, unique=True, verbose_name="E-mail")
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['username']
 
     def __str__(self):
         return self.email
@@ -136,6 +140,22 @@ class CustomUser(AbstractUser):
     class Meta:
         verbose_name = "Личный кабинет"
         verbose_name_plural = "Личный кабинет"
+
+
+class Promocode(models.Model):
+    name = models.TextField(verbose_name="Название промокода вот")
+    percent = models.PositiveIntegerField(verbose_name="Процент скидки промокода", validators=[MaxValueValidator(100),])
+    expires_at = models.DateTimeField(verbose_name="Время окончания промокода")
+
+    class Meta:
+        verbose_name = "Промокод"
+        verbose_name_plural = "Промокоды"
+
+    def __str__(self):
+        return f"{self.name} - {self.percent} - {self.expires_at}"
+    
+    def is_available(self):
+        return datetime.now().replace(tzinfo=None) <= self.expires_at.replace(tzinfo=None)
 
 
 class UserReg(models.Model):
@@ -160,7 +180,7 @@ class UserReg(models.Model):
         null=True
     )
 
-    promocode = models.CharField(max_length=100, verbose_name="Промокод", blank=True)
+    promocode = models.ForeignKey(Promocode, on_delete=models.SET_NULL, verbose_name="Промокод", null=True, blank=True)
 
     EDUCATION_CHOICES = [
         ('basic', 'Основное общее (5-9 классы)'),

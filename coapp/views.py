@@ -62,13 +62,19 @@ def register(request, course_id):
         phone_number = request.POST.get('phone_number')
         address = request.POST.get('address')
         birthdate = request.POST.get('birthdate')
+        promocode_name = request.POST.get('promocode')
         snils = request.POST.get('snils')
         gender = request.POST.get('gender')
-        promocode = request.POST.get('promocode')
         education = request.POST.get('education')  # Get the education level
         picture1 = request.FILES.get('picture1')
         picture2 = request.FILES.get('picture2')
         time_to_beat_id = request.POST.get('time_to_beat')  # Get the selected course duration
+
+        
+        print(request.POST.get('promocode'))
+        promocode = Promocode.objects.filter(name=promocode_name).first()
+        print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+        print(promocode)
 
         if CustomUser.objects.filter(email=email).exists():
             messages.error(request, 'Пользователь с таким E-mail уже существует.')
@@ -80,7 +86,7 @@ def register(request, course_id):
                 'birthdate': birthdate,
                 'snils': snils,
                 'gender': gender,
-                'promocode': promocode,
+                'promocode': promocode.name,
                 'education': education,
                 'course_times': course_times,  # Pass course_times to the template
             })
@@ -95,7 +101,36 @@ def register(request, course_id):
                 'birthdate': birthdate,
                 'snils': snils,
                 'gender': gender,
-                'promocode': promocode,
+                'promocode': promocode.name,
+                'education': education,
+                'course_times': course_times,  # Pass course_times to the template
+            })
+        
+        if not Promocode.objects.filter(name=promocode_name).first():
+            messages.error(request, 'Данный промокод не существует проверьте правильность его написания.')
+            return render(request, 'register.html', {
+                'email': email,
+                'username': username,
+                'phone_number': phone_number,
+                'address': address,
+                'birthdate': birthdate,
+                'snils': snils,
+                'gender': gender,
+                'promocode': promocode_name,
+                'education': education,
+                'course_times': course_times,  # Pass course_times to the template
+            })
+        if datetime.now().replace(tzinfo=None) > promocode.expires_at.replace(tzinfo=None):
+            messages.error(request, 'Данный промокод уже не действует.')
+            return render(request, 'register.html', {
+                'email': email,
+                'username': username,
+                'phone_number': phone_number,
+                'address': address,
+                'birthdate': birthdate,
+                'snils': snils,
+                'gender': gender,
+                'promocode': promocode_name,
                 'education': education,
                 'course_times': course_times,  # Pass course_times to the template
             })
@@ -110,7 +145,7 @@ def register(request, course_id):
                 'birthdate': birthdate,
                 'snils': snils,
                 'gender': gender,
-                'promocode': promocode,
+                'promocode': Promocode.objects.get(name=request.POST.get('promocode')),
                 'education': education,
                 'course_times': course_times,  # Pass course_times to the template
             })
@@ -973,7 +1008,10 @@ def create_payment(request, amount, user_reg_id):
     amount = f"{amount:.2f}"
 
     user_reg = get_object_or_404(UserReg, id=user_reg_id)
-
+    if user_reg.promocode:
+        if user_reg.promocode.is_available():
+            percent_mul = 1 - user_reg.promocode.percent / 100
+            amount = f"{float(amount) * percent_mul:.2f}"
     user = getattr(request, "user", None)
     email = getattr(user, "email", "noemail@example.com")
     full_name = user.username if user else None
