@@ -11,18 +11,21 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
 
 from django.conf.global_settings import LOGOUT_REDIRECT_URL
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-7q1!b6ynk8a(qj52k2fp)!xuy7y6#k_87d)&g+gacn&5vkx+25'
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -181,15 +184,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 SOCIALACCOUNT_LOGIN_ON_GET=True
 
 
-# YOOKASSA_SHOP_ID = '1128887'
-# YOOKASSA_SECRET_KEY = 'test_KN9OXXXKQGcKE0BC8MrFk6Vg3osd6bMCrBDsPWycJ88'
-#
-#
 
-
-
-YOOKASSA_SHOP_ID = '1049474'
-YOOKASSA_SECRET_KEY = 'live_Hrwn9RKCsw4l7opSURQg5EVIAs90GJzr63evNYdhJik'
+YOOKASSA_SHOP_ID = os.getenv("YOOKASSA_SHOP_ID")
+YOOKASSA_SECRET_KEY = os.getenv("YOOKASSA_SECRET_KEY")
 
 
 
@@ -204,8 +201,8 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.yandex.ru"
 EMAIL_PORT = 465
 EMAIL_USE_SSL = True
-EMAIL_HOST_USER = "sashason1990@yandex.ru"
-EMAIL_HOST_PASSWORD = "vfwnqonbqllxgipw"  # пароль приложения
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")  # пароль приложения
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
