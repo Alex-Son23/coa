@@ -62,9 +62,9 @@ def register(request, course_id):
         phone_number = request.POST.get('phone_number')
         address = request.POST.get('address')
         birthdate = request.POST.get('birthdate')
-        promocode_name = request.POST.get('promocode')
         snils = request.POST.get('snils')
         gender = request.POST.get('gender')
+        promocode_name = request.POST.get('promocode')
         education = request.POST.get('education')  # Get the education level
         picture1 = request.FILES.get('picture1')
         picture2 = request.FILES.get('picture2')
@@ -106,7 +106,7 @@ def register(request, course_id):
                 'course_times': course_times,  # Pass course_times to the template
             })
         
-        if not Promocode.objects.filter(name=promocode_name).first():
+        if not promocode and not promocode_name:
             messages.error(request, 'Данный промокод не существует проверьте правильность его написания.')
             return render(request, 'register.html', {
                 'email': email,
@@ -120,7 +120,7 @@ def register(request, course_id):
                 'education': education,
                 'course_times': course_times,  # Pass course_times to the template
             })
-        if datetime.now().replace(tzinfo=None) > promocode.expires_at.replace(tzinfo=None):
+        if promocode.is_available():
             messages.error(request, 'Данный промокод уже не действует.')
             return render(request, 'register.html', {
                 'email': email,
@@ -145,7 +145,7 @@ def register(request, course_id):
                 'birthdate': birthdate,
                 'snils': snils,
                 'gender': gender,
-                'promocode': Promocode.objects.get(name=request.POST.get('promocode')),
+                'promocode': promocode_name,
                 'education': education,
                 'course_times': course_times,  # Pass course_times to the template
             })
@@ -212,6 +212,7 @@ def register_user_reg(request, course_id):
 
     if UserReg.objects.filter(user=user, course__id=course_id).exists():
         messages.error(request, 'Вы уже зарегистрированы на этот курс.')
+        print("Вы уже зарегистрированы на этот курс.")
         return redirect('home')
 
     course = Course.objects.get(id=course_id)
@@ -224,11 +225,13 @@ def register_user_reg(request, course_id):
         birthdate = request.POST.get('birthdate')
         snils = request.POST.get('snils')
         gender = request.POST.get('gender')
-        promocode = request.POST.get('promocode')
+        promocode_name = request.POST.get('promocode')
         education = request.POST.get('education')
         picture1 = request.FILES.get('picture1')
         picture2 = request.FILES.get('picture2')
         time_to_beat_id = request.POST.get('time_to_beat')
+
+        promocode = Promocode.objects.filter(name=promocode_name).first()
 
         if not username or not phone_number or not address or not birthdate or not snils or not gender:
             messages.error(request, 'Пожалуйста, заполните все обязательные поля.')
@@ -240,10 +243,41 @@ def register_user_reg(request, course_id):
                 'birthdate': birthdate,
                 'snils': snils,
                 'gender': gender,
-                'promocode': promocode,
+                'promocode': promocode_name,
                 'education': education,
                 'course_times': course_times,
             })
+        print(not promocode_name)
+        if promocode_name:
+            if not promocode:
+                messages.error(request, 'Данный промокод не существует проверьте правильность его написания.')
+                return render(request, 'register_user_reg.html', {
+                    'user': user,
+                    'username': username,
+                    'phone_number': phone_number,
+                    'address': address,
+                    'birthdate': birthdate,
+                    'snils': snils,
+                    'gender': gender,
+                    'promocode': promocode_name,
+                    'education': education,
+                    'course_times': course_times,
+                })
+            
+            if not promocode.is_available() and bool(promocode_name):
+                messages.error(request, 'Данный промокод уже не действует.')
+                return render(request, 'register_user_reg.html', {
+                    'user': user,
+                    'username': username,
+                    'phone_number': phone_number,
+                    'address': address,
+                    'birthdate': birthdate,
+                    'snils': snils,
+                    'gender': gender,
+                    'promocode': promocode_name,
+                    'education': education,
+                    'course_times': course_times,
+                })
 
         try:
             birthdate_obj = timezone.datetime.strptime(birthdate, '%Y-%m-%d')
@@ -257,7 +291,7 @@ def register_user_reg(request, course_id):
                 'birthdate': birthdate,
                 'snils': snils,
                 'gender': gender,
-                'promocode': promocode,
+                'promocode': promocode_name,
                 'education': education,
                 'course_times': course_times,
             })
@@ -354,6 +388,7 @@ def profile_view(request):
     paid_courses = []
 
     for reg in user_regs:
+        print(reg)
         course = reg.course
         if reg.is_paid:
             paid_courses.append(course)
@@ -399,6 +434,9 @@ def profile_view(request):
 
         if finished == False:
             grade = "Пока не пройден"
+
+        print(reg.time_to_beat)
+        price_with_discoint = reg.time_to_beat.price * (reg.promocode.percent / 100) if reg.promocode else None
         courses_info.append({
             'course': course,
             'time_to_beat_info': reg.time_to_beat,
@@ -408,7 +446,7 @@ def profile_view(request):
             'pictures_uploaded': pictures_uploaded,
             'percentage': percentage,
             'grade': grade,
-
+            'price_with_discount': price_with_discoint
         })
 
     return render(request, 'profile.html', {
@@ -805,7 +843,7 @@ def userregs_export_xlsx(request):
             obj.id,
             obj.username,
             str(obj.course.content),
-            str(obj.time_to_beat.price),
+            str(obj.price_with_promocode()),
             yn(obj.is_paid),
             yn(_docs_attached(obj)),
             yn(obj.scans_approved),

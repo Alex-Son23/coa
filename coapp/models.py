@@ -220,6 +220,12 @@ class UserReg(models.Model):
     class Meta:
         verbose_name = "Профиль к курсу"
         verbose_name_plural = "Профиль к курсу"
+    
+    def price_with_promocode(self):
+        if self.promocode:
+            return (1 - self.promocode.percent / 100) * self.time_to_beat.price
+        else:
+            return float(self.time_to_beat.price)
 
 class Category(models.Model):
     name = models.CharField(max_length=200, verbose_name="Название")

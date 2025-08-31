@@ -194,7 +194,8 @@ YOOKASSA_RETURN_URL = 'https://xn--73-6kcpuhmaikdgbk.xn--p1ai/payment/return/'
 
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://precociously-interested-glassfish.cloudpub.ru"
+    "https://precociously-interested-glassfish.cloudpub.ru",
+    "https://ineffably-entrancing-akita.cloudpub.ru",
 ]
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"

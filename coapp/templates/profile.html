@@ -109,7 +109,11 @@
                 <div class="course_catprice">
                     <p class="price">
                         {% if course_info.time_to_beat_info %}
-                        {{ course_info.time_to_beat_info.time }} : {{ course_info.time_to_beat_info.price }} ₽
+                            {% if course_info.price_with_discount %}
+                                {{ course_info.time_to_beat_info.time }} : <s>{{ course_info.time_to_beat_info.price }} ₽</s> {{ course_info.price_with_discount }} ₽
+                            {% else %}
+                                {{ course_info.time_to_beat_info.time }} : {{ course_info.time_to_beat_info.price }} ₽
+                            {% endif %}
                         {% else %}
                     <p>Нет данных по срокам и ценам.</p>
                     {% endif %}
