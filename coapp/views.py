@@ -105,35 +105,35 @@ def register(request, course_id):
                 'education': education,
                 'course_times': course_times,  # Pass course_times to the template
             })
-        
-        if not promocode and not promocode_name:
-            messages.error(request, 'Данный промокод не существует проверьте правильность его написания.')
-            return render(request, 'register.html', {
-                'email': email,
-                'username': username,
-                'phone_number': phone_number,
-                'address': address,
-                'birthdate': birthdate,
-                'snils': snils,
-                'gender': gender,
-                'promocode': promocode_name,
-                'education': education,
-                'course_times': course_times,  # Pass course_times to the template
-            })
-        if promocode.is_available():
-            messages.error(request, 'Данный промокод уже не действует.')
-            return render(request, 'register.html', {
-                'email': email,
-                'username': username,
-                'phone_number': phone_number,
-                'address': address,
-                'birthdate': birthdate,
-                'snils': snils,
-                'gender': gender,
-                'promocode': promocode_name,
-                'education': education,
-                'course_times': course_times,  # Pass course_times to the template
-            })
+        if promocode_name:
+            if not promocode:
+                messages.error(request, 'Данный промокод не существует проверьте правильность его написания.')
+                return render(request, 'register.html', {
+                    'email': email,
+                    'username': username,
+                    'phone_number': phone_number,
+                    'address': address,
+                    'birthdate': birthdate,
+                    'snils': snils,
+                    'gender': gender,
+                    'promocode': promocode_name,
+                    'education': education,
+                    'course_times': course_times,  # Pass course_times to the template
+                })
+            if promocode.is_available():
+                messages.error(request, 'Данный промокод уже не действует.')
+                return render(request, 'register.html', {
+                    'email': email,
+                    'username': username,
+                    'phone_number': phone_number,
+                    'address': address,
+                    'birthdate': birthdate,
+                    'snils': snils,
+                    'gender': gender,
+                    'promocode': promocode_name,
+                    'education': education,
+                    'course_times': course_times,  # Pass course_times to the template
+                })
 
         if not email or not password or not username or not phone_number or not address or not birthdate or not snils or not gender:
             messages.error(request, 'Пожалуйста, заполните все обязательные поля.')
